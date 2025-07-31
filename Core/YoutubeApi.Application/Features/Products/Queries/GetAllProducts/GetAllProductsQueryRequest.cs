@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace YoutubeApi.Application.Features.Products.Queries.GetAllProducts
 {
-    public class GetAllProductsQueryRequest : IRequest<GetAllProductsQueryResponse>
+    public class GetAllProductsQueryRequest : IRequest<IList<GetAllProductsQueryResponse>>
     {
     }
 }

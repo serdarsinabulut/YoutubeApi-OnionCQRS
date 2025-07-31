@@ -9,7 +9,7 @@ using YoutubeApi.Domain.Entities;
 
 namespace YoutubeApi.Persistence.Context
 {
-    internal class AppDbContext : DbContext
+    public class AppDbContext : DbContext
     {
         public AppDbContext() { }
 

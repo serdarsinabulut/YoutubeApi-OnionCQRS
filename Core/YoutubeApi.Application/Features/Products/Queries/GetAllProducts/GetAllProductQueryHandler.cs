@@ -1,9 +1,12 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YoutubeApi.Application.DTOs;
+using YoutubeApi.Application.Interfaces.AutoMapper;
 using YoutubeApi.Application.Interfaces.UnitOfWorks;
 using YoutubeApi.Domain.Entities;
 
@@ -12,28 +15,26 @@ namespace YoutubeApi.Application.Features.Products.Queries.GetAllProducts
     public class GetAllProductQueryHandler : IRequestHandler<GetAllProductsQueryRequest, IList<GetAllProductsQueryResponse>>
     {
         private readonly IUnitOfWork unitOfwork;
+        private readonly IMapper mapper;
 
-        public GetAllProductQueryHandler(IUnitOfWork unitOfwork)
+        public GetAllProductQueryHandler(IUnitOfWork unitOfwork, IMapper mapper)
         {
             this.unitOfwork = unitOfwork;
+            this.mapper = mapper;
         }
         public async Task<IList<GetAllProductsQueryResponse>> Handle(GetAllProductsQueryRequest request, CancellationToken cancellationToken)
         {
-            var products = await unitOfwork.GetReadRepository<Product>().GetAllAsync();
+            var products = await unitOfwork.GetReadRepository<Product>().GetAllAsync(include:x=>x.Include(b=>b.Brand));
 
-            List<GetAllProductsQueryResponse> response = new();
+            var brand = mapper.Map<BrandDto,Brand>(new Brand());
 
-            foreach (var product in products)
+            var map = mapper.Map<GetAllProductsQueryResponse , Product>(products);
+            foreach (var item in map)
             {
-                response.Add(new GetAllProductsQueryResponse
-                {
-                    Title = product.Title,
-                    Description = product.Description,
-                    Discount = product.Discount,
-                    Price = product.Price-(product.Price*product.Discount/100),
-                });
+                item.Price -= (item.Price * item.Discount / 100);
             }
-            return response;
+
+            return map;
         }
     }
 }
